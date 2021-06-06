@@ -1,0 +1,73 @@
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[10pt,a4paper]{article}
+% \usepackage[affil-it]{authblk}
+
+
+% Adjusting margins to personal my need
+\addtolength{\oddsidemargin}{-.5in}
+\addtolength{\evensidemargin}{-.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1in}
+
+% Graphics
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+
+% Math
+\usepackage{amssymb}
+\usepackage{amsmath} % Required for some math elements 
+
+% Other
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage{lipsum}
+\usepackage{hyperref}
+
+%----------------------------------------------------------------------------------------
+%	MAIN PART - Modify here
+%----------------------------------------------------------------------------------------
+\begin{document}
+
+\title{Titolo del Report \\
+\Large{Report per l'Esame di Fondamenti di Machine Learning}
+} % Title
+
+\author{\textsc{Francesco Baraldi} \\
+    \emph{132097} \\
+    Corso di Laurea in Ingegneria Informatica\\
+    \emph{256745@studenti.unimore.it}
+  }
+
+\date{}
+
+\maketitle % Inserts the title, author and other information
+
+%----------------------------------------------------------------------------------------
+%	Abstract
+%----------------------------------------------------------------------------------------
+\begin{abstract}
+\normalsize
+%% Text of the abstract
+\lipsum[9]
+
+\end{abstract}
+
+%----------------------------------------------------------------------------------------
+%	Main Part
+%----------------------------------------------------------------------------------------
+\input{sections/00-dummy}
+\input{sections/examples}
+
+%----------------------------------------------------------------------------------------
+%	Bibliography
+%----------------------------------------------------------------------------------------
+\bibliography{bibliography/sample}{}
+\bibliographystyle{plain}
+
+\end{document}
