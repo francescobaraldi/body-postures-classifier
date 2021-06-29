@@ -33,7 +33,7 @@ def kdeplot(feature, labels=list(df['class'].unique())):
         ax.legend()
 
 
-def barplot_percentages(feature, orient='v', axis_name="percentage of subjects"):
+def barplot_percentages(feature, orient='v', axis_name="percentuale per ogni classe"):
     g = df.groupby(feature)["class"].value_counts().to_frame()
     g = g.rename({"class": axis_name}, axis=1).reset_index()
     g[axis_name] = g[axis_name] / len(df)
@@ -78,6 +78,7 @@ def plot_confusion_matrix(y_true, y_pred):
 
 # EDA
 print(df.head())
+print(df.dtypes)
 print(df.shape)
 print(df.columns)
 print(df.info())
@@ -102,19 +103,13 @@ for feat in categorical:
     print(pd.crosstab(df['class'], df[feat], normalize=True))
 
 barplot_percentages("user")
-barplot_percentages("age")
-barplot_percentages("gender")
-barplot_percentages("how_tall_in_meters")
-barplot_percentages("weight")
-barplot_percentages("body_mass_index")
-barplot_percentages("x1")
 
 g = sns.FacetGrid(df, row='user', col="class", hue="class", height=3.5)
 g.map(plt.scatter, "x1", "x2", alpha=0.6)
 g.add_legend()
 
 positional = ['x1', 'y1', 'z1', 'x2', 'y2', 'z2', 'x3', 'y3', 'z3', 'x4', 'y4', 'z4']
-for feat in positional:
+for feat in ["x2", "y2", "z2"]:
     kdeplot(feat)
 
 for feat in positional:  # Vedo la correlazione tra classe e valori delle coordinate e i vari outlier
@@ -124,12 +119,10 @@ for feat in positional:  # Vedo la correlazione tra classe e valori delle coordi
     plt.ylabel(feat)
     plt.scatter(df['class'], df[feat])
 
-sns.barplot(x="age", y=df['user'], hue='user', data=df, orient='v')
-feat = ["user", "gender", "age", "how_tall_in_meters", "weight", "body_mass_index"]
-
 sns.pairplot(df[positional])
-g = sns.PairGrid(df, y_vars=["z1", "z2", "z3"], x_vars=positional, height=2, hue="class", aspect=1.1)
+g = sns.PairGrid(df, y_vars=positional, x_vars=positional, height=2, hue="class", aspect=1.1)
 ax = g.map(plt.scatter, alpha=0.6)
+g.add_legend()
 
 X = df.drop(['user', 'gender', 'class'], axis=1)
 y = df['class'].values

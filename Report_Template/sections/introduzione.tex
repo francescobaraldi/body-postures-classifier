@@ -1,0 +1,15 @@
+\section{Introduzione}\label{sec:introduzione}
+La ricerca nel campo dello Human activity recognition (HAR) ha diverse applicazioni, soprattutto in ambito medico, infatti può permettere alle persone più anziane, ma anche a persone più deboli o malate, di essere monitorate e in caso di caduta o incidente la tecnologia può intervenire tempestivamente, riconoscendo un'anomalia nella posizione del soggetto, consentendo quindi maggiore sicurezza.  
+
+I possibili approcci allo HAR sono due, l'\textbf{image processing} consiste nell'analizzare immagini e video per monitorare lo stato di un soggetto, questo implica per che il controllo può essere fatto solamente in determinati luoghi dove sono presenti per esempio delle telecamere adibite allo scopo specifico. Un altro approccio è basato su \textbf{sensori indossabili} come degli accelerometri, in questo caso il soggetto dovrà indossare questi accessori per poter effettuare il controllo ma non ci saranno vincoli di spazio.  Con il veloce sviluppo dei dispositivi IoT (Internet of Things) questo approccio potrà essere sempre più facile da implementare, per esempio integrando dei dispositivi per il monitoraggio direttamente nei vestiti. Un possibile problema potrebbe essere la miniutirizzazione dei dispositivi hardware, e la relativa gestione energetica, infatti questi dispositivi avranno bisogno di energia per funzionare.
+
+In questo report però ci si limita ad analizzare un problema concreto, in particolare i dati di 4 accelerometri posti sulla vita, sulla coscia sinistra, sul braccio destro e sulla caviglia destra di 4 soggetti in un esperimento durato 8 ore.  Questi dati sono raccolti, con altre caratteristiche dei soggetti che hanno partecipato all'esperimento (nome, sesso, età, altezza, peso, indice di massa corporea), in un dataset di oltre 165 mila samples in totale. Lo scopo è quello di riconoscere correttamente la posizione di un soggetto con le features disponibili, quindi è un problema di classificazione e le classi sono cinque:
+\begin{itemize}
+\item \textbf{sitting-down}
+\item \textbf{standing-up}
+\item \textbf{standing}
+\item \textbf{walking}
+\item \textbf{sitting}
+\end{itemize}
+
+Il documento prosegue con la sezione \ref{sec:analisi}, nella quale viene fatta un'analisi dei dati utilizzati, in particolare verranno mostrati i risultati dell'exploratory data analysis (EDA) del dataset. Nella sezione \ref{sec:modelli} vengono discussi i possibili modelli di machine learning che possono essere applicati a questo problema e descritti quelli che sono stati scelti. Inoltre per ogni modello scelto verranno presentate tre versioni: una con i dati in input grezzi, non processati, una seconda versione con in input i dati pre-processati, e infine la terza versione sarà la migliore versione tra la 1 e la 2 in ensemble.Nella sezione \ref{sec:implementazione} viene descritto il processo di implementazione dei vari modelli scelti, come è stato fatto il tuning degli iperparametri, il pre-processing e il metodo di valutazione. Infine nella sezione \ref{sec:risultati} si traggono le conclusioni con un confronto tra i vari modelli.
