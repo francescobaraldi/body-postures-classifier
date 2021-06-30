@@ -223,6 +223,7 @@ df['gender'] = encoder_gender.transform(df['gender'])
 # Matrice di correlazione
 corr_matrix = df.corr()
 sns.heatmap(corr_matrix, xticklabels=corr_matrix.columns, yticklabels=corr_matrix.columns, linewidths=.2, cmap="YlGnBu")
+plt.tight_layout()
 
 features = ['how_tall_in_meters', 'x1', 'y1', 'z1', 'y2', 'x3', 'y3', 'z3', 'x4', 'y4', 'z4']
 X = df[features]
@@ -232,10 +233,11 @@ for feat in features:
     plt.figure(figsize=(5, 5))
     plt.title("Distplot for {}".format(feat))
     sns.distplot(X_train_v2[feat])
+    plt.tight_layout()
 mms = MinMaxScaler().fit(X_train_v2)
 X_train_v2_scaled = pd.DataFrame(mms.transform(X_train_v2), columns=features)
 X_test_v2_scaled = pd.DataFrame(mms.transform(X_test_v2), columns=features)
-for feat in features:
+for feat in ['x1', 'y1', 'z1', 'y2']:
     plt.figure(figsize=(5, 5))
     plt.title("Distplot for {}".format(feat))
     sns.distplot(X_train_v2_scaled[feat])
