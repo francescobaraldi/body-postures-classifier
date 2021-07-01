@@ -66,6 +66,7 @@ def features_importance(model_name, model, X):
     plt.figure(figsize=(10, 10))
     plt.title("Feature importance for " + model_name)
     sns.barplot(y=importance.index, x=importance.values, palette="Blues_d", orient='h')
+    plt.tight_layout()
 
 
 def plot_confusion_matrix(y_true, y_pred):
@@ -256,10 +257,10 @@ print('The best value for parameter max_depth is', clf.best_params_.get('max_dep
       'the best value for class_weight is', clf.best_params_.get('class_weight'),
       'the best value for criterion is', clf.best_params_.get('criterion'),
       'the best value for splitter is', clf.best_params_.get('splitter'),
-      'since it leads to balanced F1-score =', clf.best_score_)  # F1-score = 0.9770774608543087
+      'since it leads to balanced F1-score =', clf.best_score_)  # F1-score = 0.9817838465930077
 decision_tree_definitivo_v2 = tree.DecisionTreeClassifier(random_state=3, max_depth=50, class_weight=None,
                                                           criterion='entropy',
-                                                          splitter='best')  # F1-score = 0.981942065487494
+                                                          splitter='best')
 decision_tree_definitivo_v2.fit(X_train_v2_scaled, y_train_v2)
 y_pred = decision_tree_definitivo_v2.predict(X_test_v2_scaled)
 execute_scores("Decision Tree v2", y_test_v2, y_pred)
@@ -397,11 +398,11 @@ execute_scores("SVM v3", y_test_v2, y_pred)
 
 plot_confusion_matrix(y_test_v2, y_pred)
 
-# NEURAL NETWORK - la versione migliore è la 1
+# NEURAL NETWORK - la versione migliore è la 2
 nn_v3 = BaggingClassifier(random_state=3, base_estimator=nn_definitivo_v1, verbose=1)
 iperparametri = {'n_estimators': [10, 20, 50]}
 clf = GridSearchCV(estimator=nn_v3, param_grid=iperparametri, scoring='f1_weighted', cv=5)
-clf.fit(X_train_v1, y_train_v1)
+clf.fit(X_train_v2, y_train_v2)
 print('NN v3')
 print('The best value for parameter n_estimators is', clf.best_params_.get('n_estimators'),
       'since these lead to F1-score =', clf.best_score_)  # F1-score = 0.9898294941897781
@@ -411,7 +412,7 @@ nn_definitivo_v3.fit(X_train_v2_scaled, y_train_v2)
 y_pred = nn_definitivo_v3.predict(X_test_v2_scaled)
 execute_scores("NN v3", y_test_v2, y_pred)
 
-mat = confusion_matrix(y_test_v1, y_pred, normalize=True)
+mat = confusion_matrix(y_test_v2, y_pred, normalize=True)
 sns.heatmap(mat.T, square=True, annot=True, fmt='d', cbar=False)
 plt.xlabel('Valori reali')
 plt.ylabel('Valori predetti')
@@ -433,6 +434,6 @@ print('The cross-validated F1-score of SVM v3 is ', np.mean(scores['test_f1_weig
 print('The cross-validated Balanced Accuracy of SVM v3 is ', np.mean(scores['test_balanced_accuracy']))
 
 # NEURAL NETWORK
-scores = cross_validate(nn_definitivo_v3, X_train_v1, y_train_v1, cv=5, scoring=('f1_weighted', 'balanced_accuracy'))
+scores = cross_validate(nn_definitivo_v3, X_train_v2, y_train_v2, cv=5, scoring=('f1_weighted', 'balanced_accuracy'))
 print('The cross-validated F1-score of NN v3 is ', np.mean(scores['test_f1_weighted']))
 print('The cross-validated Balanced Accuracy of NN v3 is ', np.mean(scores['test_balanced_accuracy']))
