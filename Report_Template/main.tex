@@ -4,6 +4,9 @@
 
 \documentclass[10pt,a4paper]{article}
 % \usepackage[affil-it]{authblk}
+\usepackage[autostyle,italian=guillemets,]{csquotes}
+\usepackage[bibstyle=authortitle,citestyle=verbose-trad1,backend=biber,style=numeric]{biblatex}
+\addbibresource{main.bib}
 
 
 % Adjusting margins to personal my need
@@ -65,12 +68,13 @@ Questo documento presenta un'analisi di diversi modelli di machine learning per 
 \input{sections/modelli}
 \input{sections/implementazione}
 \input{sections/risultati}
-\input{sections/examples}
 
 %----------------------------------------------------------------------------------------
 %	Bibliography
 %----------------------------------------------------------------------------------------
-\bibliography{bibliography/sample.bib}{}
-\bibliographystyle{plain}
+%\bibliography{bibliography/sample}{}
+%\bibliographystyle{plain}
+\appendix
+\printbibliography[heading=bibintoc]
 
 \end{document}

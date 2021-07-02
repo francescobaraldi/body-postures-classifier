@@ -52,7 +52,6 @@ def execute_scores(model_name, y_test, y_pred):
     print('Precision:', precision_score(y_test, y_pred, average='weighted'))
     print('Recall:', recall_score(y_test, y_pred, average='weighted'))
     print('F1-Score:', f1_score(y_test, y_pred, average='weighted'))
-    # print('AUC is ', roc_auc_score(y_test, y_pred, average='weighted', multi_class='ovr'))
 
 
 def model_assessment(model_name, model, X, y):
@@ -70,8 +69,8 @@ def features_importance(model_name, model, X):
 
 
 def plot_confusion_matrix(y_true, y_pred):
-    mat = confusion_matrix(y_true, y_pred, normalize=True)
-    sns.heatmap(mat.T, square=True, annot=True, fmt='d', cbar=False)
+    mat = confusion_matrix(y_true, y_pred, normalize='true')
+    sns.heatmap(mat.T, square=True, annot=True, cbar=False, cmap='Blues_r')
     plt.xlabel('Valori reali')
     plt.ylabel('Valori predetti')
     plt.show()
@@ -105,10 +104,6 @@ for feat in categorical:
 
 barplot_percentages("user")
 
-g = sns.FacetGrid(df, row='user', col="class", hue="class", height=3.5)
-g.map(plt.scatter, "x1", "x2", alpha=0.6)
-g.add_legend()
-
 positional = ['x1', 'y1', 'z1', 'x2', 'y2', 'z2', 'x3', 'y3', 'z3', 'x4', 'y4', 'z4']
 for feat in ["x2", "y2", "z2"]:
     kdeplot(feat)
@@ -120,7 +115,6 @@ for feat in positional:  # Vedo la correlazione tra classe e valori delle coordi
     plt.ylabel(feat)
     plt.scatter(df['class'], df[feat])
 
-sns.pairplot(df[positional])
 g = sns.PairGrid(df, y_vars=positional, x_vars=positional, height=2, hue="class", aspect=1.1)
 ax = g.map(plt.scatter, alpha=0.6)
 g.add_legend()
@@ -132,7 +126,7 @@ X_train_v1, X_test_v1, y_train_v1, y_test_v1 = train_test_split(X, y, test_size=
 ########################################################################################################################
 # CROSS-VALIDATION PER MODEL SELECTION VERSIONE 1#
 ########################################################################################################################
-# DECISION TREE
+# DECISION TREE v1
 decision_tree_v1 = tree.DecisionTreeClassifier(random_state=3)
 iperparametri = {'max_depth': [5, 10, 20, 50], 'class_weight': ['balanced', None], 'criterion': ['gini', 'entropy'],
                  'splitter': ['best', 'random']}
@@ -147,13 +141,6 @@ print('The best value for parameter max_depth is', clf.best_params_.get('max_dep
 decision_tree_definitivo_v1 = tree.DecisionTreeClassifier(random_state=3, max_depth=20, class_weight=None,
                                                           criterion='entropy',
                                                           splitter='best')
-decision_tree_definitivo_v1.fit(X_train_v1, y_train_v1)
-y_pred = decision_tree_definitivo_v1.predict(X_test_v1)
-execute_scores("Decision Tree v1", y_test_v1, y_pred)
-print(classification_report(y_test_v1, y_pred))
-
-features_importance("Decision Tree v1", decision_tree_definitivo_v1, X_train_v1)
-plot_confusion_matrix(y_test_v1, y_pred)
 
 # SVM
 svm_v1 = SVC(random_state=3, verbose=True)
@@ -167,14 +154,9 @@ print('The best value for parameter C is', clf.best_params_.get('C'),
       'the best value for parameter class_weight is', clf.best_params_.get('class_weight'),
       'the best value for parameter max_iter is', clf.best_params_.get('max_iter'),
       'the best value for parameter decision_function_shape is', clf.best_params_.get('decision_function_shape'),
-      'since these lead to F1-score =', clf.best_score_)
+      'since these lead to F1-score =', clf.best_score_)  # F1-score = 0.46786182695409206
 svm_definitivo_v1 = SVC(random_state=3, C=1000, kernel='rbf', class_weight='balanced', max_iter=10,
-                        decision_function_shape='ovo')  # F1-score = 0.46786182695409206
-svm_definitivo_v1.fit(X_train_v1, y_train_v1)
-y_pred = svm_definitivo_v1.predict(X_test_v1)
-execute_scores("SVM v1", y_test_v1, y_pred)
-
-plot_confusion_matrix(y_test_v1, y_pred)
+                        decision_function_shape='ovo')
 
 # NEURAL NETWORK
 nn_v1 = MLPClassifier(random_state=3, verbose=True, tol=1e-6)
@@ -187,33 +169,42 @@ print('The best value for parameter hidden_layer_sizes is', clf.best_params_.get
       'the best value for parameter max_iter is', clf.best_params_.get('max_iter'),
       'the best value for parameter early_stopping is', clf.best_params_.get('early_stopping'),
       'the best value for parameter activation is', clf.best_params_.get('activation'),
-      'since these lead to F1-score =', clf.best_score_)
+      'since these lead to F1-score =', clf.best_score_)  # F1-score = 0.9803673186309148
 nn_definitivo_v1 = MLPClassifier(random_state=3, tol=1e-6, hidden_layer_sizes=(50, 50), max_iter=50,
-                                 early_stopping=False, activation='logistic')  # F1-score = 0.9803673186309148
+                                 early_stopping=False, activation='logistic')
+
+########################################################################################################################
+# CROSS-VALIDATION PER MODEL ASSESSMENT E TESTING VERSIONE 1#
+########################################################################################################################
+# DECISION TREE v1
+model_assessment("DECISION TREE v1", decision_tree_definitivo_v1, X_train_v1, y_train_v1)
+
+decision_tree_definitivo_v1.fit(X_train_v1, y_train_v1)
+y_pred = decision_tree_definitivo_v1.predict(X_test_v1)
+execute_scores("Decision Tree v1", y_test_v1, y_pred)
+print(classification_report(y_test_v1, y_pred))
+
+features_importance("Decision Tree v1", decision_tree_definitivo_v1, X_train_v1)
+plot_confusion_matrix(y_test_v1, y_pred)
+
+# SVM v1
+model_assessment("SVM v1", svm_definitivo_v1, X_train_v1, y_train_v1)
+
+svm_definitivo_v1.fit(X_train_v1, y_train_v1)
+y_pred = svm_definitivo_v1.predict(X_test_v1)
+execute_scores("SVM v1", y_test_v1, y_pred)
+
+plot_confusion_matrix(y_test_v1, y_pred)
+
+# NEURAL NETWORK v1
+model_assessment("NEURAL NETWORK v1", nn_definitivo_v1, X_train_v1, y_train_v1)
+
 nn_definitivo_v1.fit(X_train_v1, y_train_v1)
 y_pred = nn_definitivo_v1.predict(X_test_v1)
 execute_scores("NN v1", y_test_v1, y_pred)
 
 plot_confusion_matrix(y_test_v1, y_pred)
 
-########################################################################################################################
-# CROSS-VALIDATION PER MODEL ASSESSMENT VERSIONE 1#
-########################################################################################################################
-# DECISION TREE
-scores = cross_validate(decision_tree_definitivo_v1, X_train_v1, y_train_v1, cv=5,
-                        scoring=('f1_weighted', 'balanced_accuracy'))
-print('The cross-validated F1-score of Decision Tree v1 is', np.mean(scores['test_f1_weighted']))
-print('The cross-validated Balanced Accuracy of Decision Tree v1 is ', np.mean(scores['test_balanced_accuracy']))
-
-# SVM
-scores = cross_validate(svm_definitivo_v1, X_train_v1, y_train_v1, cv=5, scoring=('f1_weighted', 'balanced_accuracy'))
-print('The cross-validated F1-score of SVM v1 is ', np.mean(scores['test_f1_weighted']))
-print('The cross-validated Balanced Accuracy of SVM v1 is ', np.mean(scores['test_balanced_accuracy']))
-
-# NEURAL NETWORK
-scores = cross_validate(nn_definitivo_v1, X_train_v1, y_train_v1, cv=5, scoring=('f1_weighted', 'balanced_accuracy'))
-print('The cross-validated F1-score of NN v1 is ', np.mean(scores['test_f1_weighted']))
-print('The cross-validated Balanced Accuracy of NN v1 is ', np.mean(scores['test_balanced_accuracy']))
 
 # PREPROCESSING
 encoder_class = LabelEncoder().fit(df['class'])
@@ -226,10 +217,12 @@ corr_matrix = df.corr()
 sns.heatmap(corr_matrix, xticklabels=corr_matrix.columns, yticklabels=corr_matrix.columns, linewidths=.2, cmap="YlGnBu")
 plt.tight_layout()
 
+# Features selection
 features = ['how_tall_in_meters', 'x1', 'y1', 'z1', 'y2', 'x3', 'y3', 'z3', 'x4', 'y4', 'z4']
 X = df[features]
 X_train_v2, X_test_v2, y_train_v2, y_test_v2 = train_test_split(X, y, test_size=0.2, stratify=y)
 
+# Scaling
 for feat in features:
     plt.figure(figsize=(5, 5))
     plt.title("Distplot for {}".format(feat))
@@ -246,7 +239,7 @@ for feat in ['x1', 'y1', 'z1', 'y2']:
 ########################################################################################################################
 # CROSS-VALIDATION PER MODEL SELECTION VERSIONE 2 #
 ########################################################################################################################
-# DECISION TREE
+# DECISION TREE v2
 decision_tree_v2 = tree.DecisionTreeClassifier(random_state=3)
 iperparametri = {'max_depth': [5, 10, 20, 50], 'class_weight': ['balanced', None], 'criterion': ['gini', 'entropy'],
                  'splitter': ['best', 'random']}
@@ -261,14 +254,8 @@ print('The best value for parameter max_depth is', clf.best_params_.get('max_dep
 decision_tree_definitivo_v2 = tree.DecisionTreeClassifier(random_state=3, max_depth=50, class_weight=None,
                                                           criterion='entropy',
                                                           splitter='best')
-decision_tree_definitivo_v2.fit(X_train_v2_scaled, y_train_v2)
-y_pred = decision_tree_definitivo_v2.predict(X_test_v2_scaled)
-execute_scores("Decision Tree v2", y_test_v2, y_pred)
 
-features_importance("Decision Tree v2", decision_tree_definitivo_v2, X_train_v2_scaled)
-plot_confusion_matrix(y_test_v2, y_pred)
-
-# SVM
+# SVM v2
 pca = PCA(random_state=3, svd_solver='randomized', whiten=True)
 svc = SVC(random_state=3, verbose=True)
 svm_v2 = make_pipeline(pca, svc)
@@ -288,33 +275,8 @@ print('The best value for parameter C is', clf.best_params_.get('svc__C'),
 pca = PCA(random_state=3, svd_solver='randomized', whiten=True, n_components=10)
 svc = SVC(random_state=3, C=1000, kernel='rbf', class_weight=None, max_iter=50, decision_function_shape='ovo')
 svm_definitivo_v2 = make_pipeline(pca, svc)
-svm_definitivo_v2.fit(X_train_v2_scaled, y_train_v2)
-y_pred = svm_definitivo_v2.predict(X_test_v2_scaled)
-execute_scores("SVM v2", y_test_v2, y_pred)
 
-plot_confusion_matrix(y_test_v2, y_pred)
-
-# NEURAL NETWORK
-nn_v2 = MLPClassifier(random_state=3, verbose=True, tol=1e-6)
-iperparametri = {'hidden_layer_sizes': [(50, 50), (20, 20, 20), (5, 5, 5, 5)], 'max_iter': [10, 50],
-                 'early_stopping': [True, False], 'activation': ['logistic', 'tanh']}
-clf = GridSearchCV(estimator=nn_v2, param_grid=iperparametri, scoring='f1_weighted', cv=5)
-clf.fit(X_train_v2_scaled, y_train_v2)
-print('NN v2')
-print('The best value for parameter hidden_layer_sizes is', clf.best_params_.get('hidden_layer_sizes'),
-      'the best value for parameter max_iter is', clf.best_params_.get('max_iter'),
-      'the best value for parameter early_stopping is', clf.best_params_.get('early_stopping'),
-      'the best value for parameter activation is', clf.best_params_.get('activation'),
-      'since these lead to F1-score =', clf.best_score_)
-nn_definitivo_v2 = MLPClassifier(random_state=3, tol=1e-6, hidden_layer_sizes=(20, 20, 20), max_iter=50,
-                                 early_stopping=True, activation='tanh')  # F1-score = 0.9612301061404441
-nn_definitivo_v2.fit(X_train_v2_scaled, y_train_v2)
-y_pred = nn_definitivo_v2.predict(X_test_v2_scaled)
-execute_scores("NN v2", y_test_v2, y_pred)
-
-plot_confusion_matrix(y_test_v2, y_pred)
-
-# NEURAL NETWORK con PCA
+# NEURAL NETWORK v2
 pca = PCA(random_state=3, svd_solver='randomized', whiten=True)
 nn = MLPClassifier(random_state=3, verbose=True, tol=1e-6)
 nn_v2 = make_pipeline(pca, nn)
@@ -334,32 +296,37 @@ pca = PCA(random_state=3, svd_solver='randomized', whiten=True, n_components=10)
 nn = MLPClassifier(random_state=3, verbose=True, tol=1e-6, hidden_layer_sizes=(50, 50), max_iter=50,
                    early_stopping=False, activation='tanh')
 nn_definitivo_v2 = make_pipeline(pca, nn)
+
+########################################################################################################################
+# CROSS-VALIDATION PER MODEL ASSESSMENT E TESTING VERSIONE 2 #
+########################################################################################################################
+# DECISION TREE v2
+model_assessment("DECISION TREE v2", decision_tree_definitivo_v2, X_train_v2_scaled, y_train_v2)
+
+decision_tree_definitivo_v2.fit(X_train_v2_scaled, y_train_v2)
+y_pred = decision_tree_definitivo_v2.predict(X_test_v2_scaled)
+execute_scores("Decision Tree v2", y_test_v2, y_pred)
+
+features_importance("Decision Tree v2", decision_tree_definitivo_v2, X_train_v2_scaled)
+plot_confusion_matrix(y_test_v2, y_pred)
+
+# SVM v2
+model_assessment("SVM v2", svm_definitivo_v2, X_train_v2_scaled, y_train_v2)
+
+svm_definitivo_v2.fit(X_train_v2_scaled, y_train_v2)
+y_pred = svm_definitivo_v2.predict(X_test_v2_scaled)
+execute_scores("SVM v2", y_test_v2, y_pred)
+
+plot_confusion_matrix(y_test_v2, y_pred)
+
+# NEURAL NETWORK v2
+model_assessment("NEURAL NETWORK v2", nn_definitivo_v2, X_train_v2_scaled, y_train_v2)
+
 nn_definitivo_v2.fit(X_train_v2_scaled, y_train_v2)
 y_pred = nn_definitivo_v2.predict(X_test_v2_scaled)
 execute_scores("NN v2", y_test_v2, y_pred)
 
 plot_confusion_matrix(y_test_v2, y_pred)
-
-########################################################################################################################
-# CROSS-VALIDATION PER MODEL ASSESSMENT VERSIONE 2 #
-########################################################################################################################
-# DECISION TREE
-scores = cross_validate(decision_tree_definitivo_v2, X_train_v2_scaled, y_train_v2, cv=5,
-                        scoring=('f1_weighted', 'balanced_accuracy'))
-print('The cross-validated F1-score of Decision Tree v2 is', np.mean(scores['test_f1_weighted']))
-print('The cross-validated Balanced Accuracy of Decision Tree v2 is ', np.mean(scores['test_balanced_accuracy']))
-
-# SVM
-scores = cross_validate(svm_definitivo_v2, X_train_v2_scaled, y_train_v2, cv=5,
-                        scoring=('f1_weighted', 'balanced_accuracy'))
-print('The cross-validated F1-score of SVM v2 is ', np.mean(scores['test_f1_weighted']))
-print('The cross-validated Balanced Accuracy of SVM v2 is ', np.mean(scores['test_balanced_accuracy']))
-
-# NEURAL NETWORK
-scores = cross_validate(nn_definitivo_v2, X_train_v2_scaled, y_train_v2, cv=5,
-                        scoring=('f1_weighted', 'balanced_accuracy'))
-print('The cross-validated F1-score of NN v2 is ', np.mean(scores['test_f1_weighted']))
-print('The cross-validated Balanced Accuracy of NN v2 is ', np.mean(scores['test_balanced_accuracy']))
 
 ########################################################################################################################
 # CROSS-VALIDATION PER MODEL SELECTION VERSIONE 3 #
@@ -371,16 +338,10 @@ clf = GridSearchCV(estimator=decision_tree_v3, param_grid=iperparametri, scoring
 clf.fit(X_train_v1, y_train_v1)
 print('Decision Tree v3')
 print('The best value for parameter n_estimators is', clf.best_params_.get('n_estimators'),
-      'since it leads to balanced F1-score =', clf.best_score_)
+      'since it leads to balanced F1-score =', clf.best_score_)  # F1-score = 0.9958063054386616
 decision_tree_definitivo_v3 = RandomForestClassifier(random_state=3, max_depth=20, class_weight=None,
                                                      criterion='entropy',
-                                                     n_estimators=50)  # F1-score = 0.9958063054386616
-decision_tree_definitivo_v3.fit(X_train_v1, y_train_v1)
-y_pred = decision_tree_definitivo_v3.predict(X_test_v1)
-execute_scores("Decision Tree v3", y_test_v1, y_pred)
-
-features_importance("Decision Tree v3", decision_tree_definitivo_v3, X_train_v1)
-plot_confusion_matrix(y_test_v1, y_pred)
+                                                     n_estimators=50)
 
 # SVM - versione migliore è la 2
 svm_v3 = BaggingClassifier(random_state=3, base_estimator=svm_definitivo_v2, verbose=1)
@@ -389,14 +350,9 @@ clf = GridSearchCV(estimator=svm_v3, param_grid=iperparametri, scoring='f1_weigh
 clf.fit(X_train_v2_scaled, y_train_v2)
 print('SVM v3')
 print('The best value for parameter n_estimators is', clf.best_params_.get('n_estimators'),
-      'since these lead to F1-score =', clf.best_score_)
+      'since these lead to F1-score =', clf.best_score_)  # F1-score = 0.6147914579142865
 svm_definitivo_v3 = BaggingClassifier(random_state=3, base_estimator=svm_definitivo_v2, verbose=1,
-                                      n_estimators=100)  # F1-score = 0.6147914579142865
-svm_definitivo_v3.fit(X_train_v2_scaled, y_train_v2)
-y_pred = svm_definitivo_v3.predict(X_test_v2_scaled)
-execute_scores("SVM v3", y_test_v2, y_pred)
-
-plot_confusion_matrix(y_test_v2, y_pred)
+                                      n_estimators=100)
 
 # NEURAL NETWORK - la versione migliore è la 2
 nn_v3 = BaggingClassifier(random_state=3, base_estimator=nn_definitivo_v1, verbose=1)
@@ -408,32 +364,36 @@ print('The best value for parameter n_estimators is', clf.best_params_.get('n_es
       'since these lead to F1-score =', clf.best_score_)  # F1-score = 0.9898294941897781
 nn_definitivo_v3 = BaggingClassifier(random_state=3, base_estimator=nn_definitivo_v2, verbose=1,
                                      n_estimators=20)
+
+########################################################################################################################
+# CROSS-VALIDATION PER MODEL ASSESSMENT E TESTING VERSIONE 3 #
+########################################################################################################################
+# DECISION TREE v3
+model_assessment("DECISION TREE v3", decision_tree_definitivo_v3, X_train_v1, y_train_v1)
+
+decision_tree_definitivo_v3.fit(X_train_v1, y_train_v1)
+y_pred = decision_tree_definitivo_v3.predict(X_test_v1)
+execute_scores("Decision Tree v3", y_test_v1, y_pred)
+
+features_importance("Decision Tree v3", decision_tree_definitivo_v3, X_train_v1)
+plot_confusion_matrix(y_test_v1, y_pred)
+
+# SVM v3
+model_assessment("SVM v3", svm_definitivo_v3, X_train_v2_scaled, y_train_v2)
+
+svm_definitivo_v3.fit(X_train_v2_scaled, y_train_v2)
+y_pred = svm_definitivo_v3.predict(X_test_v2_scaled)
+execute_scores("SVM v3", y_test_v2, y_pred)
+
+plot_confusion_matrix(y_test_v2, y_pred)
+
+# NEURAL NETWORK v3
+model_assessment("NEURAL NETWORK v3", nn_definitivo_v3, X_train_v2_scaled, y_train_v2)
+
 nn_definitivo_v3.fit(X_train_v2_scaled, y_train_v2)
 y_pred = nn_definitivo_v3.predict(X_test_v2_scaled)
 execute_scores("NN v3", y_test_v2, y_pred)
 
-mat = confusion_matrix(y_test_v2, y_pred, normalize=True)
-sns.heatmap(mat.T, square=True, annot=True, fmt='d', cbar=False)
-plt.xlabel('Valori reali')
-plt.ylabel('Valori predetti')
-plt.show()
+plot_confusion_matrix(y_test_v2, y_pred)
 
-########################################################################################################################
-# CROSS-VALIDATION PER MODEL ASSESSMENT VERSIONE 3 #
-########################################################################################################################
-# DECISION TREE
-scores = cross_validate(decision_tree_definitivo_v3, X_train_v1, y_train_v1, cv=5,
-                        scoring=('f1_weighted', 'balanced_accuracy'))
-print('The cross-validated F1-score of Decision Tree v3 is', np.mean(scores['test_f1_weighted']))
-print('The cross-validated Balanced Accuracy of Decision Tree v3 is ', np.mean(scores['test_balanced_accuracy']))
 
-# SVM
-scores = cross_validate(svm_definitivo_v3, X_train_v2_scaled, y_train_v2, cv=5,
-                        scoring=('f1_weighted', 'balanced_accuracy'))
-print('The cross-validated F1-score of SVM v3 is ', np.mean(scores['test_f1_weighted']))
-print('The cross-validated Balanced Accuracy of SVM v3 is ', np.mean(scores['test_balanced_accuracy']))
-
-# NEURAL NETWORK
-scores = cross_validate(nn_definitivo_v3, X_train_v2, y_train_v2, cv=5, scoring=('f1_weighted', 'balanced_accuracy'))
-print('The cross-validated F1-score of NN v3 is ', np.mean(scores['test_f1_weighted']))
-print('The cross-validated Balanced Accuracy of NN v3 is ', np.mean(scores['test_balanced_accuracy']))

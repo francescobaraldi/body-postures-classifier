@@ -90,17 +90,6 @@ Infine per due dei tre modelli testati è stata fatta un'ulteriore operazione di
 
 Per ogni variante del modello è stata fatta una selezione degli iperparametri tramite cross-validation per model selection, per valutare quali iperparametri portano ad un modello migliore, dopodiché è stata applicata la cross-validation per model assessment, cioè per stimare le prestazioni che avrà il modello ricavato dalla model selection. La model selection è stata effettuata usando l'oggetto \verb+GridSearchCV+ di \textit{scikitlearn}, in particolare applica la startegia di cross-validation \textbf{K-fold}: il training set viene diviso in \textit{K} parti uguali, K-1 parti vengono usate come training set mentre la parte rimanente viene usata come validation set, questo processo viene ripetuto K volte cambiando ogni volta la parte del validation set, infine le prestazioni del modello vengono calcolate come media delle prestazioni nelle K iterazioni. Il parametro K è stato mantenuto quello di default, cioè K = 5. Per la fase di model assessment è stata utilizzata la funzione di \textit{scikitlearn} \verb+cross_validate()+, che divide il dataset passato come parametro in training set e development set, addestra il modello, passato anch'esso come parametro, sul training set e ne valuta le prestazione sul development set in base a certe metriche specificate. In questo caso la valutazione è stata fatta con le metriche \textbf{F1-score} e \textbf{accuracy bilanciata}.
 
-Dopodiché per valutare le prestazioni complessive del modello l'algoritmo viene riaddestrato sull'intero training set iniziale, quello senza pre-processing per le prime versioni e quello pre-processato per le seconde e terze versioni, e infine testato sul test set, di cui è stato fatto lo splitting al 20\% all'inizio e mai toccato prima di questa fase finale di testing. La valutazione è stata fatta usando le seguenti metriche:
-\begin{itemize}
-\item \textbf{Accuracy bilanciata}, perchè come visto nella sezione \ref{sec:analisi} il dataset iniziale è sbilanciato rispetto alla variabile target, quindi è necessario usare un bilanciamento;
-\item \textbf{Precision}, calcolata come la percentuale di predizioni corrette di una certa classe sul totale delle predizioni con quella label. Essendo un problema multiclasse il valore finale è calcolato come media pesata dei vari valori;
-\item \textbf{Recall}, calcolata come la percentuale di predizioni corrette di una certa classe rispetto al totale di samples effettivamente appartenenti a quella classe. Anche in questo il valore finale è calcolato come media pesata dei valori;
-\item \textbf{F1-score}, calcolata come
-\begin{equation}
-F1-score = \frac{2 \times Precision \times Recall}{Precision+Recall}
-\end{equation}
-\end{itemize}
-
 \subsection{Decision Tree}
 \subsubsection{Prima versione}\label{subsubsec:dtv1}
 Per la prima versione dell'algoritmo \textit{Decision tree} è stata fatta la model selection testando i seguenti iperparametri:
@@ -337,3 +326,17 @@ Infine il processo di model assessment garantisce i valori:
 $$F1-score = 0.992$$
 $$accuracy\_bilanciata = 0.986$$
 Rispetto alla versione due quindi si ha un leggero aumento delle prestazioni grazie alla metodologia di ensemble.
+
+\subsection{Metriche di valutazione}
+Per valutare le prestazioni complessive del modello, dopo le fasi di cross-validation per model selection e model assessment, l'algoritmo viene riaddestrato sull'intero training set iniziale, quello senza pre-processing per le prime versioni e quello pre-processato per le seconde e terze versioni, e infine testato sul test set, di cui è stato fatto lo splitting al 20\% all'inizio e mai toccato prima di questa fase finale di testing. La valutazione è stata fatta usando le seguenti metriche:
+\begin{itemize}
+\item \textbf{Accuracy bilanciata}, perchè come visto nella sezione \ref{sec:analisi} il dataset iniziale è sbilanciato rispetto alla variabile target, quindi è necessario usare un bilanciamento;
+\item \textbf{Precision}, calcolata come la percentuale di predizioni corrette di una certa classe sul totale delle predizioni con quella label. Essendo un problema multiclasse il valore finale è calcolato come media pesata dei vari valori;
+\item \textbf{Recall}, calcolata come la percentuale di predizioni corrette di una certa classe rispetto al totale di samples effettivamente appartenenti a quella classe. Anche in questo il valore finale è calcolato come media pesata dei valori;
+\item \textbf{F1-score}, calcolata come
+\begin{equation}
+F1-score = \frac{2 \times Precision \times Recall}{Precision+Recall}
+\end{equation}
+\end{itemize}
+
+L'analisi delle prestazioni complessive dei vari modelli e dei risultati finali è approfondita nella prossima sezione \ref{sec:risultati}.
