@@ -1,6 +1,6 @@
 \section{Analisi dei dati}\label{sec:analisi}
 
-Il dataset \cite{datasetarticle} contiene 165633 sample e 19 features, dopo una veloce analisi dei dati è stata fatta una conversione di tipo, da stringa a tipo numerico, in particolare la feature \textit{body\_mass\_index} e la feature \textit{how\_tall\_in\_meters} sono state convertite da stringhe a tipo numerico. Inoltre la feature \textit{z4}, che rappresenta la coordinata z del quarto accelerometro, avendo un sample con un valore non numerico è stata convertita in modo forzato in tipo numerico, trasformando il valore errato in NaN, dopodichè è stato scelto di eliminare il sample con questo valore dal dataset.  Il resto dei dati non sono presenti valori nulli o anomali.
+Il dataset \cite{datasetarticle} contiene 165633 sample e 19 features, dopo una veloce analisi dei dati è stata fatta una conversione di tipo, da stringa a tipo numerico, in particolare la feature \textit{body\_mass\_index} e la feature \textit{how\_tall\_in\_meters} sono state convertite da stringhe a tipo numerico. Inoltre la feature \textit{z4}, che rappresenta la coordinata z del quarto accelerometro, avendo un sample con un valore non numerico è stata convertita in modo forzato in tipo numerico, trasformando il valore errato in NaN, dopodichè è stato scelto di eliminare il sample con questo valore dal dataset.  Nel resto dei dati non sono presenti valori nulli o anomali.
 Il dataset risulta sbilanciato per quanto riguarda la feature target, chiamata \textit{class}, come si vede dalla figura \ref{fig:bilanciamento} infatti sono presenti più samples per le classi \textit{sitting}, \textit{standing} e \textit{walking}. Quindi sarà necessario stratificare durante lo splitting del dataset e utilizzare delle metriche opportune, come l'accuracy bilanciata invece dell'accuracy semplice.
 
 \begin{figure}[h]
@@ -13,17 +13,17 @@ Come si vede invece dalla figura \ref{fig:bilanciamentousers} i sample raccolti 
 
 \begin{figure}[h]
     \centering\includegraphics[width=0.5\linewidth]{bilanciamentousers}
-    \caption{Bilanciamento della variabile target.}
+    \caption{Bilanciamento dei dati raccolti per ogni soggetto.}
     \label{fig:bilanciamentousers}
 \end{figure}
 
 \begin{figure}[h]
     \centering\includegraphics[width=0.5\linewidth]{divisioneclassiperuser}
-    \caption{Bilanciamento della variabile target.}
+    \caption{Bilanciamento delle classi per ogni soggetto.}
     \label{fig:classiusers}
 \end{figure}
 
-In figura \ref{fig:kde} sono rappresentate le distribuzioni di probabilità dei dati raccolti dall'accelerometro 2, cioè quello posto sulla coscia sinistra, classificati in base alla posizione dei soggetti. Si può notare come nel caso della classe \textit{sitting} e \textit{standing} tutte e tre le coordinate sono più concentrate nell'intorno di un'unico valore, infatti la cosiddetta \textit{campana} è più stretta e alta. Questo può significare che se il valore letto è lontano dal valore di riferimento difficilmente la posizione sarà una delle due tra \textit{sitting} e \textit{standing}.
+In figura \ref{fig:kde} sono rappresentate le distribuzioni di probabilità dei dati raccolti dall'accelerometro 2, cioè quello posto sulla coscia sinistra, classificati in base alla posizione dei soggetti. Si può notare come nel caso della classe \textit{sitting} e \textit{standing} tutte e tre le coordinate sono più concentrate nell'intorno di un unico valore, infatti la cosiddetta \textit{campana} è più stretta e alta. Questo può significare che se il valore letto è lontano dal valore di riferimento difficilmente la posizione sarà una delle due tra \textit{sitting} e \textit{standing}.
 
 \begin{figure}[h]
     \centering
@@ -58,30 +58,30 @@ Nella figura \ref{fig:pairplot} si vede la relazione tra le coordinate dell'acce
     \label{fig:pairplot}
 \end{figure}
 
-L'accelerometro 1, quello posto sulla vita, legge delle coordinate a seconda della posizione che sono rappresentate in figura \ref{fig:scatterplot}. Come si vede dai tre grafici rappresentanti le tre coordinate, i valori non variano molto al variare della posizione, eccezion fatta per la coordinata z che diminuisce il suo valore in posizione \textit{sitting down}. Questa informazione è ragionevole, infatti la vita è la parte del corpo che cambia meno la sua posizione nello spazio al variare della postura.  Quando ci siede invece l'altezza della vita (rappresentata dalla coordinata z) si abbassa e quindi diminuisce la coordinata relativa. Inoltre dai grafici \ref{fig:scatterplot:x1}, \ref{fig:scatterplot:y1}, \ref{fig:scatterplot:z1} è possibile notare degli high leverage point presenti nei dati, cioè quei sample che differiscono dagli altri in termini di valore di una feature, in questo caso le feature \textit{x1} \textit{y1} e \textit{z1}.
+L'accelerometro 1, quello posto sulla vita, legge delle coordinate a seconda della posizione che sono rappresentate in figura \ref{fig:scatterplot}. Come si vede dai tre grafici rappresentanti le tre coordinate, i valori non variano molto al variare della posizione, eccezion fatta per la coordinata z che diminuisce il suo valore in posizione \textit{sitting down}. Questa informazione è ragionevole, infatti la vita è la parte del corpo che cambia meno la sua posizione nello spazio al variare della postura.  Quando ci siede invece l'altezza della vita (rappresentata dalla coordinata z) si abbassa e quindi diminuisce la coordinata relativa. Inoltre dai grafici \ref{fig:scatterplot:x1}, \ref{fig:scatterplot:y1}, \ref{fig:scatterplot:z1} è possibile notare degli high leverage point presenti nei dati, cioè quei sample che differiscono dagli altri in termini di valore di una feature, in questo caso le feature \textit{x1}, \textit{y1} e \textit{z1}.
 
 \begin{figure}[h]
     \centering
     \begin{subfigure}[t]{0.4\textwidth}
         \centering\includegraphics[width=1\linewidth]{scatx1}
-        \caption{Distribuzione della coordinata x.}
+        \caption{Scatterplot della coordinata x.}
         \label{fig:scatterplot:x1}
     \end{subfigure}
     %
     \begin{subfigure}[t]{0.4\textwidth}
         \centering\includegraphics[width=1\linewidth]{scaty1}
-        \caption{Distribuzione della coordinata y.}
+        \caption{Scatterplot della coordinata y.}
         \label{fig:scatterplot:y1}
     \end{subfigure}
     %
     \\
     \begin{subfigure}[t]{0.4\textwidth}
         \centering\includegraphics[width=1\linewidth]{scatz1}
-        \caption{Distribuzione della coordinata z.}
+        \caption{Scatterplot della coordinata z.}
         \label{fig:scatterplot:z1}
     \end{subfigure}
     %
-    \caption{Densità delle coordinate dell'accelerometro 2.}
+    \caption{Scatterplot delle coordinate dell'accelerometro 1.}
     \label{fig:scatterplot}
 \end{figure}
 

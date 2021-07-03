@@ -2,7 +2,7 @@
 In questo paragrafo verranno descritti in modo specifico i dettagli implementativi di ogni modello e di ogni sua versione, oltre ai vari passaggi di pre-processing e il metodo di valutazione.
 
 \subsection{Pre-processing}\label{subsec:prepr}
-Per le versioni 1 dei modelli i dati non vengono pre-processati, infatti i dati non vengono modificati come descritto nella sezione \ref{sec:analisi}, ma vengono solamente fatte le modifiche in fase di EDA, modificando quindi i tipi dei dati ed eliminando i valori NaN. Lo splitting in questo caso è fatto quindi sui dati originali, togliendo dalle features lo \textit{user}, che è il nome del soggetto e non influisce sull'apprendimento, ed è stato tolta anche la feature \textit{gender}, in quanto non ancora trasformata con l'encoder. Inoltre la variabile target \textit{class} in questo caso rimane sottoforma di stringa.
+Per le versioni 1 dei modelli i dati non vengono pre-processati, infatti i dati non vengono modificati come descritto nella sezione \ref{sec:analisi}, ma vengono solamente fatte le modifiche in fase di EDA, modificando quindi i tipi dei dati ed eliminando i valori NaN. Lo splitting in questo caso è fatto quindi sui dati originali, togliendo dalle features lo \textit{user}, che è il nome del soggetto e non influisce sull'apprendimento, ed è stata tolta anche la feature \textit{gender}, in quanto non ancora trasformata con l'encoder. Inoltre la variabile target \textit{class} in questo caso rimane sotto forma di stringa.
 
 Per le versioni 2 invece vengono effettuati gli step di pre-processing descritti brevemente nella sezione \ref{sec:analisi}, in particolare dopo aver fatto l'encoding della feature \textit{gender} e del target \textit{class}, è stata studiata la matrice di correlazione, mostrata in figura \ref{fig:corr}, per valutare la collinearità delle features tra di loro, e con la variabile target. Ne risulta che le variabili \textit{y1} e \textit{y4} sono particolarmente correlate con la variabile target, quindi saranno importanti ai fini della classificazione. In secondo luogo è possibile notare che le features \textit{how\_tall\_in\_meters}, \textit{weight} e \textit{body\_mass\_index} sono particolarmente correlate tra di loro e di conseguenza è conveniente eliminarne due e mantenerne una sola. Infine le tre variabili che rappresentano le coordinate dell'accelerometro 2, quello sulla coscia sinistra, sono molto correlate tra loro, quindi anche in questo caso conviene mantenerne una sola.
 
@@ -12,7 +12,7 @@ Per le versioni 2 invece vengono effettuati gli step di pre-processing descritti
     \label{fig:corr}
 \end{figure}
 
-Dalle informazioni raccolte dalla matrice di correlazione, in figura \ref{fig:corr}, effettuiamo la features selection eliminando le variabili \textit{weight} e \textit{body\_mass\_index} perchè altamente correlate con \textit{how\_tall\_in\_meters} e viene mantenuta quest'ultima; vengono anche eliminate le coordinate x e z del secondo accelerometro, mantenendo solo la coordinata y. Infine vengono eliminate le variabili \textit{user} e \textit{age} in quanto non influenti sul riconoscimento della postura.
+Dalle informazioni raccolte dalla matrice di correlazione, in figura \ref{fig:corr}, effettuiamo la features selection eliminando le variabili \textit{weight} e \textit{body\_mass\_index} perché altamente correlate con \textit{how\_tall\_in\_meters} e viene mantenuta quest'ultima; vengono anche eliminate le coordinate x e z del secondo accelerometro, mantenendo solo la coordinata y. Infine vengono eliminate le variabili \textit{user} e \textit{age} in quanto non influenti sul riconoscimento della postura.
 
 Le features selezionate vengono poi sottoposte a uno scaling, in particolare si applica il metodo del \textbf{min-max-scaling}: trasforma il valore di ogni features portandolo a un valore compreso tra 0 e 1, per farlo applica a ogni variabile la seguente formula:
 
@@ -86,9 +86,9 @@ In figura \ref{fig:distprescaling} sono mostrati i grafici di distribuzione di a
 
 In figura \ref{fig:distpostscaling} invece sono mostrati i grafici delle distribuzioni delle stesse variabili dopo aver subito la trasformazione del min-max-scaling, come si vede il valore è compreso tra 0 e 1 ma l'andamento è lo stesso e la distribuzione mantiene la stessa forma, a prova del fatto che i dati mantengono le stesse informazioni rappresentative. Grazie a quest'operazione di trasformazione delle features i modelli saranno più efficienti e veloci in fase di training.
 
-Infine per due dei tre modelli testati è stata fatta un'ulteriore operazione di riduzione delle features, infatti per le seconde e terze versioni dei modelli \textit{SVM} e \textit{rete neurale} è stata applicata la \textbf{principal component analysis} (PCA), un metodo che riduce il numero delle features proiettando i punti in un sottospazio più piccolo dimensionalmente rispetto allo spazio originario delle features. Il modello decision tree è più efficiente in termini di prestazioni e velocità, quindi non è stato applicato il metodo PCA a questo algoritmo perchè già efficiente con le features selezionate precedentemente. Le SVM e le reti neurali invece essendo più lente nella fase di training sono state velocizzate dalla riduzione delle features fatta dalla PCA. 
+Infine per due dei tre modelli testati è stata fatta un'ulteriore operazione di riduzione delle features, infatti per le seconde e terze versioni dei modelli \textit{SVM} e \textit{rete neurale} è stata applicata la \textbf{principal component analysis} (PCA), un metodo che riduce il numero delle features proiettando i punti in un sottospazio più piccolo dimensionalmente rispetto allo spazio originario delle features. Il modello decision tree è più efficiente in termini di prestazioni e velocità, quindi non è stato applicato il metodo PCA a questo algoritmo perché già efficiente con le features selezionate precedentemente. Le SVM e le reti neurali invece essendo più lente nella fase di training sono state velocizzate dalla riduzione delle features fatta dalla PCA. 
 
-Per ogni variante del modello è stata fatta una selezione degli iperparametri tramite cross-validation per model selection, per valutare quali iperparametri portano ad un modello migliore, dopodiché è stata applicata la cross-validation per model assessment, cioè per stimare le prestazioni che avrà il modello ricavato dalla model selection. La model selection è stata effettuata usando l'oggetto \verb+GridSearchCV+ di \textit{scikitlearn}, in particolare applica la startegia di cross-validation \textbf{K-fold}: il training set viene diviso in \textit{K} parti uguali, K-1 parti vengono usate come training set mentre la parte rimanente viene usata come validation set, questo processo viene ripetuto K volte cambiando ogni volta la parte del validation set, infine le prestazioni del modello vengono calcolate come media delle prestazioni nelle K iterazioni. Il parametro K è stato mantenuto quello di default, cioè K = 5. Per la fase di model assessment è stata utilizzata la funzione di \textit{scikitlearn} \verb+cross_validate()+, che divide il dataset passato come parametro in training set e development set, addestra il modello, passato anch'esso come parametro, sul training set e ne valuta le prestazione sul development set in base a certe metriche specificate. In questo caso la valutazione è stata fatta con le metriche \textbf{F1-score} e \textbf{accuracy bilanciata}.
+Per ogni variante del modello è stata fatta una selezione degli iperparametri tramite cross-validation per model selection, per valutare quali iperparametri portano ad un modello migliore, dopodiché è stata applicata la cross-validation per model assessment, cioè per stimare le prestazioni che avrà il modello ricavato dalla model selection. La model selection è stata effettuata usando l'oggetto \verb+GridSearchCV+ di \textit{scikit-learn} \cite{sklearn}, in particolare applica la strategia di cross-validation \textbf{K-fold}: il training set viene diviso in K parti uguali, K-1 parti vengono usate come training set mentre la parte rimanente viene usata come validation set, questo processo viene ripetuto K volte cambiando ogni volta la parte del validation set, infine le prestazioni del modello vengono calcolate come media delle prestazioni nelle K iterazioni. Il parametro K è stato mantenuto quello di default, cioè K = 5. Per la fase di model assessment è stata utilizzata la funzione di \textit{scikit-learn} \cite{sklearn} \verb+cross_validate()+, che divide il dataset passato come parametro in training set e development set, addestra il modello, passato anch'esso come parametro, sul training set e ne valuta le prestazione sul development set in base a certe metriche specificate. In questo caso la valutazione è stata fatta con le metriche \textbf{F1-score} e \textbf{accuracy bilanciata}.
 
 \subsection{Decision Tree}
 \subsubsection{Prima versione}\label{subsubsec:dtv1}
@@ -100,7 +100,7 @@ Per la prima versione dell'algoritmo \textit{Decision tree} è stata fatta la mo
 \item \textbf{splitter}: la strategia con cui dividere i nodi, cioè il valore su cui fare il test per ogni nodo, sono stati testati i valori \textit{best}, cioè scegliendo lo splitting migliore, e il valore \textit{random} con il quale invece lo splitting viene scelto casualmente.
 \end{itemize}
 
-Dopo la fase di model selection sono stati ricavati i migliori valori per ogni iperparametro, rappresentati in tabella \ref{tab:dtv1} che portano ad avere un valore di F1-score, usata per la cross-validation, pari a 0.985.
+Dopo la fase di model selection sono stati ricavati i migliori valori per ogni iperparametro, rappresentati in tabella \ref{tab:dtv1}, che portano ad avere un valore di F1-score, usata per la cross-validation, pari a 0.985.
 
 \begin{table}[h] 
 \centering
@@ -112,7 +112,7 @@ Dopo la fase di model selection sono stati ricavati i migliori valori per ogni i
 \textbf{splitter} & \textit{best}\\
 \hline
 \end{tabular}
-\caption{Iperparametri migliori per la prima versione del Decision tree}
+\caption{Iperparametri migliori per la prima versione del Decision tree.}
 \label{tab:dtv1}
 \end{table}
 
@@ -139,7 +139,7 @@ Per la seconda versione vengono utilizzati i dati pre-processati come descritto 
 \textbf{splitter} & \textit{best, random}\\
 \hline
 \end{tabular}
-\caption{Valori testati per gli iperparametri della seconda versione del Decision tree}
+\caption{Valori testati per gli iperparametri della seconda versione del Decision tree.}
 \label{tab:valdtv2}
 \end{table}
 
@@ -153,7 +153,7 @@ Per la seconda versione vengono utilizzati i dati pre-processati come descritto 
 \textbf{splitter} & \textit{best}\\
 \hline
 \end{tabular}
-\caption{Iperparametri migliori per la seconda versione del Decision tree}
+\caption{Iperparametri migliori per la seconda versione del Decision tree.}
 \label{tab:dtv2}
 \end{table}
 
@@ -166,7 +166,7 @@ Infine anche per questa seconda versione si analizza l'importanza delle features
 
 \begin{figure}[h]
     \centering\includegraphics[width=0.6\linewidth]{featimportdtv2}
-    \caption{Features importance per la seconda verisone del modello Decision tree.}
+    \caption{Features importance per la seconda versione del modello Decision tree.}
     \label{fig:featuresimportancedtv2}
 \end{figure}
 
@@ -185,7 +185,7 @@ L'algoritmo sarà costruito usando il metodo del \textit{RandomForest}, che rapp
 \textbf{n\_estimators} & \textit{50}\\
 \hline
 \end{tabular}
-\caption{Iperparametri migliori per la terza versione del Decision tree}
+\caption{Iperparametri migliori per la terza versione del Decision tree.}
 \label{tab:dtv3}
 \end{table}
 
@@ -225,7 +225,7 @@ Con la fase di model selection sono stati ricavati i valori migliori per ogni ip
 \textbf{decision\_function\_shape} & \textit{ovo}\\
 \hline
 \end{tabular}
-\caption{Iperparametri migliori per la prima versione di SVM}
+\caption{Iperparametri migliori per la prima versione di SVM.}
 \label{tab:svmv1}
 \end{table}
 
@@ -249,7 +249,7 @@ I valori ottimi risultanti sono mostrati in tabella \ref{tab:svmv2} e sono relat
 \textbf{n\_components} & \textit{10}\\
 \hline
 \end{tabular}
-\caption{Iperparametri seconda versione SVM}
+\caption{Iperparametri seconda versione SVM.}
 \label{tab:svmv2}
 \end{table}
 
@@ -258,17 +258,17 @@ $$F1-score = 0.567$$
 $$accuracy\_bilanciata = 0.530$$
 
 \subsubsection{Terza versione}\label{subsubsec:svmv3}
-L'algoritmo della terza versione sarà una versione ensemble della seconda versione, in quanto la migliore tra le prime due., di conseguenza il training set usato sarà quello delle seconde versioni, cioè quello con il pre-processing. È stata utilizzata la tecnica di ensemble detta \textbf{Bagging}: si addestrano tanti \textit{weak learner} parallelamente e in modo indipendente e si unisce il risultato di ognuno in modo deterministico. In particolare è stato usato l'oggetto \textbf{BaggingClassifier} di \textit{scikitlearn}, il quale prende un modello di base e ne addestra un certo numero, ognuno su un sottoinsieme diverso del dataset originario, infine ne combina i vari risultati in un risultato unico. Il parametro \textit{base\_estimator} sarà il modello SVM della seconda versione, che sarà il modello base su cui il classificatore di ensemble si baserà. Durante la model selection sarà valutato solamente il parametro \textit{n\_estimators} che rappresenta il numero di waek learner da addestrare, i valori testati per questo iperparametro sono \textit{10, 50, 100}. Il valore ottimo ottenuto dalla fase di model selection è 100, e porta ad avere un'F1-score pari a 0.615. Infine la fase di model assessment restituisce le metriche:
+L'algoritmo della terza versione sarà una versione ensemble della seconda versione, in quanto la migliore tra le prime due, di conseguenza il training set usato sarà quello delle seconde versioni, cioè quello con il pre-processing. È stata utilizzata la tecnica di ensemble detta \textbf{Bagging}: si addestrano tanti \textit{weak learner} parallelamente e in modo indipendente e si unisce il risultato di ognuno in modo deterministico. In particolare è stato usato l'oggetto \verb+BaggingClassifier+ di \textit{scikit-learn} \cite{sklearn}, il quale prende un modello di base e ne addestra un certo numero, ognuno su un sottoinsieme diverso del dataset originario, infine ne combina i vari risultati in un risultato unico. Il parametro \textit{base\_estimator} sarà il modello SVM della seconda versione, che sarà il modello base su cui il classificatore di ensemble si baserà. Durante la model selection sarà valutato solamente il parametro \textit{n\_estimators} che rappresenta il numero di weak learner da addestrare, i valori testati per questo iperparametro sono \textit{10, 50, 100}. Il valore ottimo ottenuto dalla fase di model selection è 100, e porta ad avere un'F1-score pari a 0.615. Infine la fase di model assessment restituisce le metriche:
 $$F1-score = 0.610$$
 $$accuracy\_bilanciata = 0.602$$
 
-Quindi la tecnica di ensemble migliora le prestazioni del modello originale, aumentando sia la F1-score che l'accuracy bilanciata, nonostrante ciò la bontà di questo modello non eccelle e i valori rimangono piuttosto bassi.
+Quindi la tecnica di ensemble migliora le prestazioni del modello originale, aumentando sia la F1-score che l'accuracy bilanciata, nonostante ciò la bontà di questo modello non eccelle e i valori rimangono piuttosto bassi.
 
 \subsection{Reti neurali}
 \subsubsection{Prima versione}\label{nnv1}
 Gli iperparametri testati durante la cross-validation per la prima versione delle reti neurali sono i seguenti:
 \begin{itemize}
-\item \textbf{hidden\_layer\_sizes}: rappresenta il numero di layer che la rete avrà e quanti nodi ogni layer avrà, viene rappresentato sottoforma di \textit{tupla} Python, dove ogni elemento rappresenta un layer e il numero stesso rappresenta il numero di nodi di quel layer. I valori testati sono \textit{(50, 50), (20, 20, 20), (5, 5, 5, 5)}.
+\item \textbf{hidden\_layer\_sizes}: rappresenta il numero di layer che la rete avrà e quanti nodi ogni layer avrà, viene rappresentato sotto forma di \textit{tupla} Python, dove ogni elemento rappresenta un layer e il numero stesso rappresenta il numero di nodi di quel layer. I valori testati sono \textit{(50, 50), (20, 20, 20), (5, 5, 5, 5)}.
 \item \textbf{max\_iter}: è il numero massimo di iterazioni che l'algoritmo farà, i valori testati sono \textit{10, 50}.
 \item \textbf{early\_stopping}: parametro che indica se adottare o no l'early stopping per evitare l'overfitting, in questo si testano i valori \textit{True, False}.
 \item \textbf{activation}: è la funzione di attivazione dei nodi della rete, sono stati testati i valori \textit{logistic}, che rappresenta la funzione sigmoide, e il valore \textit{tanh}, che rappresenta la funzione tangente iperbolica.
@@ -287,7 +287,7 @@ In tabella \ref{tab:nnv1} sono rappresentati i valori ottimi per ciascun iperpar
 \textbf{activation} & \textit{logistic}\\
 \hline
 \end{tabular}
-\caption{Iperparametri migliori per la prima versione della rete neurale}
+\caption{Iperparametri migliori per la prima versione della rete neurale.}
 \label{tab:nnv1}
 \end{table}
 
@@ -296,7 +296,7 @@ $$F1-score = 0.980$$
 $$accuracy\_bilanciata = 0.965$$
 
 \subsubsection{Seconda versione}\label{nnv2}
-Per la seconda versione della rete neurale si utilizzano i dati pre-processati e la PCA, nello stesso modo in cui è utilizzata nella seconda versione della SVM (si veda ref{subsubsec:svmv2}), cioè usando la pipeline tra la PCA e il modello vero e proprio.  Gli iperparametri testati durante la model selection sono gli stessi testati nella prima versione della rete neurale e descritti nella sezione \ref{nnv1} e in più il parametro \textit{n\_components} della PCA, testato con i valori \textit{1, 5, 10, 20}. I valori ottimi ottenuti in questo caso sono mostrati nella tabella \ref{tab:nnv2} e portano ad avere una F1-score = 0.990.
+Per la seconda versione della rete neurale si utilizzano i dati pre-processati e la PCA, nello stesso modo in cui è utilizzata nella seconda versione della SVM (si veda \ref{subsubsec:svmv2}), cioè usando la pipeline tra la PCA e il modello vero e proprio.  Gli iperparametri testati durante la model selection sono gli stessi testati nella prima versione della rete neurale e descritti nella sezione \ref{nnv1} e in più il parametro \textit{n\_components} della PCA, testato con i valori \textit{1, 5, 10, 20}. I valori ottimi ottenuti in questo caso sono mostrati nella tabella \ref{tab:nnv2} e portano ad avere una F1-score = 0.990.
 
 \begin{table}[h] 
 \centering
@@ -310,7 +310,7 @@ Per la seconda versione della rete neurale si utilizzano i dati pre-processati e
 \textbf{n\_components} & \textit{10}\\
 \hline
 \end{tabular}
-\caption{Iperparametri migliori della seconda versione della rete neurale}
+\caption{Iperparametri migliori della seconda versione della rete neurale.}
 \label{tab:nnv2}
 \end{table}
 
@@ -330,9 +330,9 @@ Rispetto alla versione due quindi si ha un leggero aumento delle prestazioni gra
 \subsection{Metriche di valutazione}
 Per valutare le prestazioni complessive del modello, dopo le fasi di cross-validation per model selection e model assessment, l'algoritmo viene riaddestrato sull'intero training set iniziale, quello senza pre-processing per le prime versioni e quello pre-processato per le seconde e terze versioni, e infine testato sul test set, di cui è stato fatto lo splitting al 20\% all'inizio e mai toccato prima di questa fase finale di testing. La valutazione è stata fatta usando le seguenti metriche:
 \begin{itemize}
-\item \textbf{Accuracy bilanciata}, perchè come visto nella sezione \ref{sec:analisi} il dataset iniziale è sbilanciato rispetto alla variabile target, quindi è necessario usare un bilanciamento;
-\item \textbf{Precision}, calcolata come la percentuale di predizioni corrette di una certa classe sul totale delle predizioni con quella label. Essendo un problema multiclasse il valore finale è calcolato come media pesata dei vari valori;
-\item \textbf{Recall}, calcolata come la percentuale di predizioni corrette di una certa classe rispetto al totale di samples effettivamente appartenenti a quella classe. Anche in questo il valore finale è calcolato come media pesata dei valori;
+\item \textbf{Accuracy bilanciata}, perché come visto nella sezione \ref{sec:analisi} il dataset iniziale è sbilanciato rispetto alla variabile target, quindi è necessario usare un bilanciamento;
+\item \textbf{Precision}, calcolata come la percentuale di predizioni corrette di una certa classe sul totale delle predizioni con quella label. Essendo un problema multiclasse il valore finale è calcolato come media pesata dei vari valori delle classi;
+\item \textbf{Recall}, calcolata come la percentuale di predizioni corrette di una certa classe rispetto al totale di samples effettivamente appartenenti a quella classe. Anche in questo il valore finale è calcolato come media pesata dei valori delle varie classi;
 \item \textbf{F1-score}, calcolata come
 \begin{equation}
 F1-score = \frac{2 \times Precision \times Recall}{Precision+Recall}
