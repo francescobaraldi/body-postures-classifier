@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import warnings
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, Normalizer, StandardScaler, LabelEncoder
+from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV, cross_validate
@@ -95,27 +95,22 @@ df['z4'] = df['z4'].astype('int64')
 df.index = range(0, len(df))  # Ordine corretto degli index
 
 sns.catplot(y="class", kind="count", data=df, height=2.5, aspect=2.5, orient='h')  # Dataset sbilanciato
-sns.catplot(y="gender", kind="count", data=df, height=2.5, aspect=2.5, orient='h')
 sns.catplot(y="user", kind="count", data=df, height=2.5, aspect=2.5, orient='h')
-
-categorical = ['user', 'gender', 'age', 'how_tall_in_meters', 'weight', 'body_mass_index']
-for feat in categorical:
-    print(pd.crosstab(df['class'], df[feat], normalize=True))
 
 barplot_percentages("user")
 
 positional = ['x1', 'y1', 'z1', 'x2', 'y2', 'z2', 'x3', 'y3', 'z3', 'x4', 'y4', 'z4']
-for feat in ["x2", "y2", "z2"]:
+for feat in positional:
     kdeplot(feat)
 
-for feat in positional:  # Vedo la correlazione tra classe e valori delle coordinate e i vari outlier
+for feat in ['x1', 'y1', 'z1']:  # Vedo la correlazione tra classe e valori delle coordinate
     plt.figure()
     plt.title("Scatterplot for {}".format(feat))
     plt.xlabel("Class")
     plt.ylabel(feat)
     plt.scatter(df['class'], df[feat])
 
-g = sns.PairGrid(df, y_vars=positional, x_vars=positional, height=2, hue="class", aspect=1.1)
+g = sns.PairGrid(df, y_vars=['x2', 'y2', 'z2'], x_vars=positional, height=2, hue="class", aspect=1.1)
 ax = g.map(plt.scatter, alpha=0.6)
 g.add_legend()
 
@@ -205,7 +200,6 @@ execute_scores("NN v1", y_test_v1, y_pred)
 
 plot_confusion_matrix(y_test_v1, y_pred)
 
-
 # PREPROCESSING
 encoder_class = LabelEncoder().fit(df['class'])
 y = df['class'] = encoder_class.transform(df['class'])
@@ -223,7 +217,7 @@ X = df[features]
 X_train_v2, X_test_v2, y_train_v2, y_test_v2 = train_test_split(X, y, test_size=0.2, stratify=y)
 
 # Scaling
-for feat in features:
+for feat in ['x1', 'y1', 'z1', 'y2']:
     plt.figure(figsize=(5, 5))
     plt.title("Distplot for {}".format(feat))
     sns.distplot(X_train_v2[feat])
@@ -395,5 +389,3 @@ y_pred = nn_definitivo_v3.predict(X_test_v2_scaled)
 execute_scores("NN v3", y_test_v2, y_pred)
 
 plot_confusion_matrix(y_test_v2, y_pred)
-
-
